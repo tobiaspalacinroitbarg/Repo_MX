@@ -100,7 +100,8 @@ def actualizar_orgs(df, año, informe, key=0):
         # Filtro 2
         df_orgs_db_2 = df_orgs_db.loc[(df_orgs_db["ult_anio_itr"]<int(año))|(df_orgs_db["ult_anio_itr"] == 0),:]
         # Asignar año a columna correspondiente
-        df_orgs_db_1["ult_anio_itr"] = int(año)    
+        df_orgs_db_1["ult_anio_itr"] = int(año)   
+        df_orgs_db_2["ult_anio_itr"] = int(año) 
         # Creación de otros df con datos provenientes del itr_ppal que se cargarán a la tabla org
         df_orgs_aux_1 = df[["rfc","categoria_ppal","entidad_fed","rubros_aut"]]
         df_orgs_aux_2 = df[["rfc","mision","vision","web"]]
@@ -113,6 +114,7 @@ def actualizar_orgs(df, año, informe, key=0):
         df_orgs_db_2 = df_orgs_db.loc[(df_orgs_db["ult_anio_rda"]<int(año))|(df_orgs_db["ult_anio_rda"] == 0),:]
         # Asignar año
         df_orgs_db_1["ult_anio_rda"] = int(año)
+        df_orgs_db_2["ult_anio_rda"] = int(año)
         # Cols a agregar
         df_orgs_aux_1 = df[["rfc","entidad_fed","categoria"]]
         df_orgs_aux_2 = False
@@ -123,6 +125,7 @@ def actualizar_orgs(df, año, informe, key=0):
         df_orgs_db_2 = df_orgs_db.loc[(df_orgs_db["ult_anio_sat"]<int(año))|(df_orgs_db["ult_anio_sat"] == 0),:]
         # Crear columna ult_anio_sat
         df_orgs_db_1["ult_anio_sat"] = int(año)
+        df_orgs_db_2["ult_anio_sat"] = int(año)
         # Crear DF's aux
         df_orgs_aux_1 = df[["rfc","entidad_fed","rubro_aut"]]
         df_orgs_aux_2 = df[["rfc","domicilio","rep_legales","oficio","f_oficio","telefono","correo_electronico"]]
