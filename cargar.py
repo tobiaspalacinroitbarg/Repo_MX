@@ -10,7 +10,7 @@ from aux_funcs import crear_query
 # Conexión
 conn = psycopg2.connect(
     host="localhost",
-    database="YCO_ZIGLA_DB",
+    database="ZIGLA_DB",
     user="postgres",
     password="asd123"
 )
@@ -222,12 +222,12 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
     df_subidos_itr.columns = ["Rfc","Informe de transparencia"]
     
     # Órgano de gobierno
-    df_organo_gob = xls["Órgano de gobierno"].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_organo_gob = xls["Órgano de gobierno"].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_organo_gob.drop([col for col in list(df_organo_gob.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Órgano de gobierno'].keys()))], axis=1, inplace=True)
     cargar_aux(df_organo_gob, "Órgano de gobierno", año)
     
     # Gastos
-    df_gastos = xls["Gastos"].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_gastos = xls["Gastos"].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_gastos.rename({'Monto nacional admin':'Monto nacional administrativo','Monto extranjero admin':'Monto extranjero administrativo'}, axis='columns', inplace=True)
     df_gastos.drop([col for col in list(df_gastos.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Gastos'].keys()))], axis=1, inplace=True)
     df_gastos.drop_duplicates(subset=["id_itr","concepto"], inplace=True)
@@ -235,11 +235,11 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
     count = 0
     for chunk in [df_gastos.iloc[x:x+10000,:] for x in range(0, len(df_gastos), 10000)]:
         count+=1
-        cargar_aux(df_gastos, 'Gastos', año, str(count))
+        cargar_aux(chunk, 'Gastos', año, str(count))
     
     # Sector beneficiado
     df_sector_benef = xls['Sector beneficiado'].rename({'Id de donativo especie':'ID del donativo en especie'}, axis='columns')
-    df_sector_benef = df_sector_benef.merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_sector_benef = df_sector_benef.merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_sector_benef.drop([col for col in list(df_sector_benef.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Sector beneficiado'].keys()))], axis=1, inplace=True)
     cargar_aux(df_sector_benef, "Sector beneficiado", año)
     
@@ -247,26 +247,26 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
     df_ingreso_donativos = xls['Ingreso por donativos'].melt(id_vars=['Rfc', 'Donante'], value_vars=['Monto efectivo','Monto especie'], var_name='Tipo de registro' ,value_name='Monto')
     df_ingreso_donativos = df_ingreso_donativos[df_ingreso_donativos['Monto']!=0]
     df_ingreso_donativos['Tipo de registro'].replace({'Monto efectivo':'0125f000000Qm9bAAC', 'Monto especie':'0125f000000Qm9gAAC'}, inplace=True)
-    df_ingreso_donativos = df_ingreso_donativos.merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_ingreso_donativos = df_ingreso_donativos.merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_ingreso_donativos.drop([col for col in list(df_ingreso_donativos.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Ingreso por donativos'].keys()))], axis=1, inplace=True)
     cargar_aux(df_ingreso_donativos, "Ingreso por donativos", año)
     
     # Necesidades atendidas 
-    df_necesidades_atend = xls['Destino de donativos'].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_necesidades_atend = xls['Destino de donativos'].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_necesidades_atend.rename({'Número de beneficiados':'Necesidades atendidas'}, axis='columns', inplace=True)
     df_necesidades_atend.drop([col for col in list(df_necesidades_atend.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Destino de donativos'].keys()))], axis=1, inplace=True)
     df_necesidades_atend.replace({'Entidad federativa':DICCIONARIOS["ENTIDAD_FEDERATIVA"]}, inplace=True)
     cargar_aux(df_necesidades_atend,'Destino de donativos', año)
     
     # Transmisión de patrimonio
-    df_transm_patrimonio = xls['Transmisión de patrimonio'].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_transm_patrimonio = xls['Transmisión de patrimonio'].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_transm_patrimonio.rename({"Rfc destinatario":"RFC de la donataria", "Rfc":"RFC del donante", 'Total':'Monto total'}, axis='columns', inplace=True)
     df_transm_patrimonio['RFC de la donataria'] = df_transm_patrimonio['RFC de la donataria'].replace({'XEXX010101000':'XEXX01010100', 'XAXX010101000':'XAXX01010100'})
     df_transm_patrimonio.drop([col for col in list(df_transm_patrimonio.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Transmisión de patrimonio'].keys()))], axis=1, inplace=True)
     cargar_aux(df_transm_patrimonio,'Transmisión de patrimonio', año)
     
     # Donativos otorgados
-    df_donativos_otorgados =  xls['Donativos otorgados'].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_donativos_otorgados =  xls['Donativos otorgados'].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_donativos_otorgados.rename({"Rfc destinatario": "RFC de la donataria","Rfc":"RFC del donante", "Informe de transparencia":"Informe de transparencia asociado"}, axis='columns', inplace=True)
     df_donativos_otorgados['RFC de la donataria'] = df_donativos_otorgados['RFC de la donataria'].replace({'XEXX010101000':'XEXX01010100', 'XAXX010101000':'XAXX01010100'})
     df_donativos_otorgados.drop([col for col in list(df_donativos_otorgados.columns) if col not in (list(DICCIONARIOS["COLUMNAS"]['Donativos otorgados'].keys()))], axis=1, inplace=True)
@@ -274,7 +274,7 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
 
     # Control de donativos
     df_control_donativos = xls['Control de donativos'].rename({'Id de donativo especie':'Id de donativo en especie'}, axis='columns')
-    df_control_donativos = df_control_donativos.merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_control_donativos = df_control_donativos.merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_control_donativos['Fecha de destrucción'] = df_control_donativos['Fecha de destrucción'].apply(lambda x: x.split(" ")[0])
     df_control_donativos['Fecha de destrucción'] = pd.to_datetime(df_control_donativos['Fecha de destrucción'], format='%m/%d/%Y')
     df_control_donativos['Fecha de destrucción'] = df_control_donativos['Fecha de destrucción'].dt.strftime('%Y-%m-%d')
@@ -282,7 +282,7 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
     cargar_aux(df_control_donativos, 'Control de donativos', año)
 
     # Inversiones financieras
-    df_inversiones_financieras = xls['Inversiones financieras'].merge(df_subidos_itr, on=['Rfc'], how='left')
+    df_inversiones_financieras = xls['Inversiones financieras'].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_inversiones_financieras.drop([col for col in list(df_inversiones_financieras.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Inversiones financieras'].keys()))], axis=1, inplace=True)
     cargar_aux(df_inversiones_financieras, 'Inversiones financieras', año)
 
