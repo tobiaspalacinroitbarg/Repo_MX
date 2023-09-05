@@ -230,7 +230,7 @@ def cargar_tablas_asociadas(xls, subidos_itr, año):
     df_gastos = xls["Gastos"].merge(df_subidos_itr, on=['Rfc'], how='inner')
     df_gastos.rename({'Monto nacional admin':'Monto nacional administrativo','Monto extranjero admin':'Monto extranjero administrativo'}, axis='columns', inplace=True)
     df_gastos.drop([col for col in list(df_gastos.columns) if col not in (['Rfc'] + list(DICCIONARIOS["COLUMNAS"]['Gastos'].keys()))], axis=1, inplace=True)
-    df_gastos.drop_duplicates(subset=["id_itr","concepto"], inplace=True)
+    df_gastos.drop_duplicates(subset=["Informe de transparencia","Concepto"], inplace=True)
     # Inicializar count
     count = 0
     for chunk in [df_gastos.iloc[x:x+10000,:] for x in range(0, len(df_gastos), 10000)]:
