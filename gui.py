@@ -5,6 +5,7 @@ from tkinter import filedialog
 import warnings
 import time
 from PIL import Image, ImageTk
+import PIL
 import ast
 # Filtro de Warning para el usuario
 warnings.filterwarnings("ignore", message="Workbook contains no default style")
@@ -257,7 +258,7 @@ def pantalla_carga_gui():
 
     # Carga la imagen
     imagen = Image.open("images/carga.png")
-    imagen = imagen.resize((140,140), Image.ANTIALIAS)
+    imagen = imagen.resize((140,140), PIL.Image.Resampling.LANCZOS)
     # Crea un objeto ImageTk para mostrar la imagen en el widget Label
     imagen_tk = ImageTk.PhotoImage(imagen)
     # Crea un widget Label y muestra la imagen
